@@ -31,7 +31,12 @@ import java.io.Serializable;
  */
 public class NetworkMapEntry implements Serializable {
     
-    /** The id of the entry. */
+    /**
+	 * Serial code version <code>serialVersionUID</code> for serialization.
+	 */
+	private static final long serialVersionUID = -2980220292699106437L;
+
+	/** The id of the entry. */
     private long id;
     
     /** The entry's source. */

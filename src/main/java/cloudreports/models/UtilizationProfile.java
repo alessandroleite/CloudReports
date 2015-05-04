@@ -21,6 +21,8 @@ package cloudreports.models;
 
 import java.io.Serializable;
 
+import org.cloudbus.cloudsim.UtilizationModelFull;
+
 /**
  * Represents the resources utilization profile of a customer.
  * It stores the customer's broker policy, cloudlets configuration and
@@ -29,9 +31,14 @@ import java.io.Serializable;
  * @author      Thiago T. Sá
  * @since       1.0
  */
-public class UtilizationProfile implements Serializable{
+public class UtilizationProfile implements Serializable
+{
+    /**
+	 * Serial code version <code>serialVersionUID</code> for serialization.
+	 */
+	private static final long serialVersionUID = 1386717524495160562L;
 
-    /** The profile's id. */
+	/** The profile's id. */
     private long id;
     
     /** The broker policy alias. */
@@ -68,17 +75,20 @@ public class UtilizationProfile implements Serializable{
     private double timeToSend; //TODO: replace with list or array with distribution-specific values
 
     /** The default constructor. */
-    public UtilizationProfile() {
+    public UtilizationProfile() 
+    {
         setBrokerPolicyAlias("Round robin");
+        
         setTimeZone(-3.0);
         setNumOfCloudlets(50);
         setLength(50000);
         setFileSize(500);
         setOutputSize(500);
         setCloudletsPesNumber(1);
-        setUtilizationModelCpuAlias("Full");
-        setUtilizationModelRamAlias("Full");
-        setUtilizationModelBwAlias("Full");
+        
+        setUtilizationModelCpuAlias(UtilizationModelFull.class.getSimpleName());
+        setUtilizationModelRamAlias(UtilizationModelFull.class.getSimpleName());
+        setUtilizationModelBwAlias(UtilizationModelFull.class.getSimpleName());
     }
 
     /**

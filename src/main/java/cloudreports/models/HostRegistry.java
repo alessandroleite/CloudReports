@@ -21,6 +21,12 @@ package cloudreports.models;
 
 import java.io.Serializable;
 
+import org.cloudbus.cloudsim.VmSchedulerTimeShared;
+import org.cloudbus.cloudsim.power.models.PowerModelLinear;
+import org.cloudbus.cloudsim.provisioners.BwProvisionerSimple;
+import org.cloudbus.cloudsim.provisioners.PeProvisionerSimple;
+import org.cloudbus.cloudsim.provisioners.RamProvisionerSimple;
+
 /**
  * A host registry stores information about a specific host configuration.
  * It contains general information such as scheduling policy, power specifications
@@ -29,6 +35,7 @@ import java.io.Serializable;
  * @author      Thiago T. Sá
  * @since       1.0
  */
+@SuppressWarnings("serial")
 public class HostRegistry implements Serializable{
 
     /** The host's id. */
@@ -80,19 +87,19 @@ public class HostRegistry implements Serializable{
      * @since           1.0
      */    
     public HostRegistry() {
-        setSchedulingPolicyAlias("Time shared");
+        setSchedulingPolicyAlias(VmSchedulerTimeShared.class.getSimpleName());
         setNumOfPes(4);
         setMipsPerPe(2400);
         setMaxPower(250);
         setStaticPowerPercent(0.7);
-        setPowerModelAlias("Linear");
+        setPowerModelAlias(PowerModelLinear.class.getSimpleName());
         setRam(40000);
-        setRamProvisionerAlias("Simple");
+        setRamProvisionerAlias(RamProvisionerSimple.class.getSimpleName());
         setBw(10000000);
-        setBwProvisionerAlias("Simple");
+        setBwProvisionerAlias(BwProvisionerSimple.class.getSimpleName());
         setAmount(1);
         setStorage(1000000);
-        setPeProvisionerAlias("Simple");
+        setPeProvisionerAlias(PeProvisionerSimple.class.getSimpleName());
     }
 
     /**

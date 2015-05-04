@@ -21,15 +21,17 @@ package cloudreports.database;
 
 import cloudreports.gui.Dialog;
 import cloudreports.models.*;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
 import javax.swing.JFrame;
+
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
+import org.slf4j.LoggerFactory;
 
 /**
  * Provides a set of operations related to database creation and management.
@@ -37,7 +39,9 @@ import org.hibernate.Session;
  * @author      Thiago T. Sá
  * @since       1.0
  */
-public class Database {
+public class Database 
+{
+	private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(Database.class.getName());
     
     /** The database connection. */
     private static Connection connection;
@@ -48,14 +52,16 @@ public class Database {
      * @see     #connection
      * @since   1.0
      */    
-    private static void establishConnection() {
-        try {
+    private static void establishConnection() 
+    {
+        try 
+        {
             Class.forName("org.sqlite.JDBC");
             connection = DriverManager.getConnection("jdbc:sqlite:db/" + HibernateUtil.getActiveDatabase() + ".cre");
-        } catch (SQLException ex) {
-            Logger.getLogger(Database.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (ClassNotFoundException ex) {
-            Logger.getLogger(Database.class.getName()).log(Level.SEVERE, null, ex);
+        } 
+        catch (SQLException | ClassNotFoundException ex) 
+        {
+            LOG.error(ex.getMessage(), ex);
         }
     }
 
@@ -65,8 +71,10 @@ public class Database {
      * @see     #connection
      * @since   1.0
      */       
-    public static void createDatabase() {
-        try {
+    public static void createDatabase() 
+    {
+        try 
+        {
             establishConnection();
             Statement stat = connection.createStatement();
             createCustomersTable(stat);
@@ -81,11 +89,16 @@ public class Database {
             createSettingsTable(stat);
             createRandomPoolTable(stat);            
             insertDefaultSettingsValues(stat);
-        } catch (Exception ex) {
+        } 
+        catch (Exception ex) 
+        {
+        	LOG.error("An error occurred while creating the database. Error message [{}]", ex.getMessage(), ex);
             Dialog.showErrorMessage(new JFrame(), "An error occurred while creating the database.");
-            System.exit(0);
+            
+            System.exit(1);
         }
-        finally {
+        finally 
+        {
         	closeConnection(connection);
         }
     }
@@ -96,11 +109,15 @@ public class Database {
      * @see     #connection
      * @since   1.1
      */ 
-    private static void closeConnection(Connection connection) {
-    	try {
+    private static void closeConnection(Connection connection) 
+    {
+    	try 
+    	{
 			connection.close();
-		} catch (SQLException ex) {
-			Logger.getLogger(Database.class.getName()).log(Level.SEVERE, null, ex);
+		} 
+    	catch (SQLException ex) 
+    	{
+			LOG.error("Error on closing database connection; Error message [{}]", ex.getMessage(), ex);
 		}
 	}
     
@@ -111,8 +128,8 @@ public class Database {
      * @see     #connection
      * @since   1.1
      */     
-	private static void insertDefaultSettingsValues(Statement stat)
-			throws SQLException {
+	private static void insertDefaultSettingsValues(Statement stat) throws SQLException 
+	{
 		stat.executeUpdate("INSERT INTO Settings VALUES (0,'Randomness','0')");
 		stat.executeUpdate("INSERT INTO Settings VALUES (1,'NumberOfSimulations','1')");
 		stat.executeUpdate("INSERT INTO Settings VALUES (2,'CurrentSimulation','1')");
@@ -128,8 +145,8 @@ public class Database {
      * @see     #connection
      * @since   1.1
      */     
-	private static void createRandomPoolTable(Statement stat)
-			throws SQLException {
+	private static void createRandomPoolTable(Statement stat) throws SQLException 
+	{
 		stat.executeUpdate("CREATE TABLE RandomPool ("
 		                        + "Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,"
 		                        + "Value REAL NOT NULL"
@@ -144,7 +161,8 @@ public class Database {
      * @see     #connection
      * @since   1.1
      */     
-	private static void createSettingsTable(Statement stat) throws SQLException {
+	private static void createSettingsTable(Statement stat) throws SQLException 
+	{
 		stat.executeUpdate("CREATE TABLE Settings ("
 		                        + "Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,"
 		                        + "Name TEXT NOT NULL,"
@@ -360,20 +378,25 @@ public class Database {
      * @see     Migration
      * @since   1.0
      */        
-    public static void cleanTempReport() {
-        Session session = HibernateUtil.getSession();        
-        try {
+    public static void cleanTempReport() 
+    {
+        Session session = HibernateUtil.getSession();
+        
+        try 
+        {
             session.beginTransaction();
             session.createQuery("DELETE FROM ReportData").executeUpdate();
             session.createQuery("DELETE FROM Migration").executeUpdate();
             session.getTransaction().commit();
         }
-        catch (HibernateException ex) {
+        catch (HibernateException ex) 
+        {
             Dialog.showErrorMessage(new JFrame(), "An error occurred while cleaning temporary report entries.");
-            Logger.getLogger(Database.class.getName()).log(Level.SEVERE, null, ex);
-        } finally {
+            LOG.error("Error on cleaning temporary report entries");
+        } 
+        finally 
+        {
             HibernateUtil.closeSession(session);
         }
     }
-
 }

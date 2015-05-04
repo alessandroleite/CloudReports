@@ -29,7 +29,8 @@ import org.hibernate.cfg.Configuration;
  * @author      Thiago T. Sá
  * @since       1.0
  */
-public class HibernateUtil {
+public class HibernateUtil 
+{
 
     /** A session factory. It provides database sessions to DAO methods. */
     private static SessionFactory sessionFactory;
@@ -44,7 +45,8 @@ public class HibernateUtil {
      * @return  a database session.
      * @since   1.0
      */        
-    public static Session getSession() {
+    public static Session getSession() 
+    {
         return sessionFactory.openSession();
     }
     
@@ -54,8 +56,10 @@ public class HibernateUtil {
      * @param   session     the session to be closed.
      * @since               1.0
      */     
-    public static void closeSession(Session session) {
-        if(session != null) {
+    public static void closeSession(Session session) 
+    {
+        if(session != null) 
+        {
             session.clear();
             session.close();
         }
@@ -67,7 +71,8 @@ public class HibernateUtil {
      * @see     #sessionFactory
      * @since   1.0
      */      
-    public static void shutDown() {
+    public static void shutDown() 
+    {
         sessionFactory.close();
     }
     
@@ -79,7 +84,8 @@ public class HibernateUtil {
      * @see     #activeDatabase
      * @since   1.0
      */         
-    public static String getActiveDatabase() {
+    public static String getActiveDatabase() 
+    {
         return activeDatabase.replace(".cre", "");
     }
 
@@ -91,15 +97,24 @@ public class HibernateUtil {
      * @see                     #activeDatabase
      * @since                   1.0
      */     
-    public static void setActiveDatabase(String aActiveDatabase) {
-        if(sessionFactory != null) sessionFactory.close();
+    public static void setActiveDatabase(String aActiveDatabase) 
+    {
+        if(sessionFactory != null)
+        {
+        	sessionFactory.close();
+        }
+        
         activeDatabase = aActiveDatabase;
+        
         Configuration cfg = new Configuration();
         cfg.configure();
+        
         System.setProperty("hibernate.connection.driver_class", "org.sqlite.JDBC");
         System.setProperty("hibernate.dialect", "cloudreports.database.SQLiteDialect");
         System.setProperty("hibernate.connection.url", "jdbc:sqlite:db/" + activeDatabase);
+        
         cfg.setProperties(System.getProperties());
+        
         sessionFactory = cfg.buildSessionFactory();
     }
 }

@@ -19,10 +19,7 @@
 
 package cloudreports.extensions.brokers;
 
-import cloudreports.business.SettingBusiness;
 import cloudreports.dao.CustomerRegistryDAO;
-import cloudreports.dao.SettingDAO;
-import cloudreports.enums.BrokerPolicy;
 import cloudreports.models.CustomerRegistry;
 import cloudreports.utils.RandomNumberGenerator;
 import java.util.ArrayList;
@@ -37,11 +34,11 @@ import org.cloudbus.cloudsim.lists.VmList;
  * A subtype of CloudSim's DatacenterBroker class. 
  * All user-implemented new broker policies must be a subtype of this class.
  * 
- * @see         BrokerPolicy
  * @author      Thiago T. Sá
  * @since       1.0
  */
-public abstract class Broker extends DatacenterBroker {
+public abstract class Broker extends DatacenterBroker 
+{
     
     /** The maximum length of cloudlets assigned to this broker. */
     private long maxLengthOfCloudlets;
@@ -57,8 +54,10 @@ public abstract class Broker extends DatacenterBroker {
      */     
     public Broker(String name) throws Exception {
         super(name);
+        
         CustomerRegistryDAO crDAO = new CustomerRegistryDAO();
         CustomerRegistry cr = crDAO.getCustomerRegistry(name);
+        
         this.cloudletId = cr.getUtilizationProfile().getNumOfCloudlets();
         this.maxLengthOfCloudlets = cr.getUtilizationProfile().getLength();
     }

@@ -21,14 +21,11 @@ package cloudreports.simulation;
 
 import cloudreports.business.SettingBusiness;
 import cloudreports.dao.CustomerRegistryDAO;
-import cloudreports.dao.DatacenterRegistryDAO;
-import cloudreports.dao.SettingDAO;
 import cloudreports.database.HibernateUtil;
 import cloudreports.extensions.PowerDatacenter;
 import cloudreports.gui.Dialog;
 import cloudreports.gui.MainView;
 import cloudreports.models.CustomerRegistry;
-import cloudreports.models.Setting;
 import cloudreports.reports.DataCollector;
 import cloudreports.reports.Report;
 import cloudreports.utils.*;

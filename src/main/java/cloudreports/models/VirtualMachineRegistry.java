@@ -28,9 +28,15 @@ import java.io.Serializable;
  * @author      Thiago T. Sá
  * @since       1.0
  */
-public class VirtualMachineRegistry implements Serializable{
+public class VirtualMachineRegistry implements Serializable
+{
 
-    /** The id of the virtual machine. */
+	/**
+	 * Serial code version <code>serialVersionUID</code> for serialization.
+	 */
+	private static final long serialVersionUID = 3718811153769903257L;
+
+	/** The id of the virtual machine. */
     private long id;
     
     /** The virtual machine's image image size. */

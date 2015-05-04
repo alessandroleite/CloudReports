@@ -31,9 +31,15 @@ import java.util.List;
  * @author      Thiago T. Sá
  * @since       1.0
  */
-public class CustomerRegistry implements Serializable{
+public class CustomerRegistry implements Serializable
+{
 
-    /** The customer's id. */
+	/**
+	 * Serial code version <code>serialVersionUID</code> for serialization.
+	 */
+	private static final long serialVersionUID = 914629307949096130L;
+
+	/** The customer's id. */
     private long id;
     
     /** The customer's name. */

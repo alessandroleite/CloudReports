@@ -19,7 +19,6 @@
 
 package cloudreports.extensions.vmallocationpolicies;
 
-import cloudreports.enums.AllocationPolicy;
 import cloudreports.models.Migration;
 import java.util.*;
 import org.cloudbus.cloudsim.Vm;

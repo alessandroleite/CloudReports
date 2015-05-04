@@ -21,6 +21,9 @@ package cloudreports.models;
 
 import java.io.Serializable;
 
+import com.google.common.base.MoreObjects;
+import com.google.common.base.Objects;
+
 /**
  * A SAN registry stores basic information about a storage area network owned
  * by a datacenter.
@@ -28,9 +31,14 @@ import java.io.Serializable;
  * @author      Thiago T. Sá
  * @since       1.0
  */
-public class SanStorageRegistry implements Serializable{
+public class SanStorageRegistry implements Serializable
+{
+	/**
+	 * Serial code version <code>serialVersionUID</code> for serialization.
+	 */
+	private static final long serialVersionUID = 687392537755907735L;
 
-    /** The SAN's id. */
+	/** The SAN's id. */
     private long id;
     
     /** The SAN's name. */
@@ -152,28 +160,37 @@ public class SanStorageRegistry implements Serializable{
     }
     
     @Override
-    public boolean equals(Object sanStorage){
-      if ( this == sanStorage ) return true;
-      if ( !(sanStorage instanceof SanStorageRegistry) ) return false;
-      SanStorageRegistry sr = (SanStorageRegistry)sanStorage;
-      return this.getName().equals(sr.getName());
-    }
+	public boolean equals(Object obj) 
+    {
+		if (this == obj) 
+		{
+			return true;
+		}
+
+		if (!(obj instanceof SanStorageRegistry)) 
+		{
+			return false;
+		}
+
+		SanStorageRegistry other = (SanStorageRegistry) obj;
+		return Objects.equal(this.getName(), other.getName());
+	}
 
     @Override
-    public int hashCode() {
-        int hash = 3;
-        hash = 79 * hash + (this.getName() != null ? this.getName().hashCode() : 0);
-        return hash;
+    public int hashCode() 
+    {
+        return Objects.hashCode(this.getName()) * 79;
     }    
     
     @Override
-    public String toString() {
-        StringBuilder s = new StringBuilder("Name="+getName()+"\n");
-        s.append("Capacity="+getCapacity()+"\n");
-        s.append("Bandwidth="+getBandwidth()+"\n");
-        s.append("Latency="+getNetworkLatency()+"\n");
-
-        return s.toString();
+    public String toString() 
+    {
+        return MoreObjects.toStringHelper(this)
+        		          .add("name", getName())
+        		          .add("Capacity", this.getCapacity())
+        		          .add("Bandwidth", getBandwidth())
+        		          .add("Latency", getNetworkLatency())
+        		          .omitNullValues()
+        		          .toString();
     }
-
 }

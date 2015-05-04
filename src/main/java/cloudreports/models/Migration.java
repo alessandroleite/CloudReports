@@ -34,7 +34,8 @@ import org.cloudbus.cloudsim.power.PowerHost;
  * @author      Thiago T. Sá
  * @since       1.0
  */
-public class Migration {
+public class Migration 
+{
     
     /** The migration's id. */
     private long id;

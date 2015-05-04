@@ -31,9 +31,14 @@ import java.util.List;
  * @author      Thiago T. Sá
  * @since       1.0
  */
-public class DatacenterRegistry implements Serializable{
+public class DatacenterRegistry implements Serializable
+{
+	/**
+	 * Serial code version <code>serialVersionUID</code> for serialization.
+	 */
+	private static final long serialVersionUID = 6728794275519860374L;
 
-    /** The datacenter's id. */
+	/** The datacenter's id. */
     private long id;
     
     /** The datacenter's name. */

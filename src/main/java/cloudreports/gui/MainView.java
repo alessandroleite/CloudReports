@@ -177,7 +177,7 @@ public class MainView extends javax.swing.JFrame {
         });
         
         if (dbArray.length == 0) {
-            HibernateUtil.setActiveDatabase("New Environment.cre");
+            HibernateUtil.setActiveDatabase("New_Environment.cre");
             Database.createDatabase();
             drDAO.insertNewDatacenterRegistry(new DatacenterRegistry("Datacenter1"));
             crDAO.insertNewCustomerRegistry(new CustomerRegistry("Customer1"));            

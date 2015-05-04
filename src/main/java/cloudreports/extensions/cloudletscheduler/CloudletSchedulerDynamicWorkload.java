@@ -19,16 +19,17 @@
 
 package cloudreports.extensions.cloudletscheduler;
 
-import cloudreports.enums.CloudletScheduler;
 import org.cloudbus.cloudsim.ResCloudlet;
+
+import cloudreports.extensions.Extension;
 
 /**
  * A subtype of CloudSim's CloudletSchedulerDynamicWorkload class. 
  * 
- * @see         CloudletScheduler#DYNAMIC_WORKLOAD
  * @author      Thiago T. Sá
  * @since       1.0
  */
+@Extension(name = "Dynamic workload")
 public class CloudletSchedulerDynamicWorkload extends org.cloudbus.cloudsim.CloudletSchedulerDynamicWorkload {
     
     /** 

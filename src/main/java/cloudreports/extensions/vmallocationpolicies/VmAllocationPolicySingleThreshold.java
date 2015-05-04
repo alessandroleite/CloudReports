@@ -20,31 +20,37 @@
 package cloudreports.extensions.vmallocationpolicies;
 
 import cloudreports.business.SettingBusiness;
-import cloudreports.enums.AllocationPolicy;
+import cloudreports.extensions.Extension;
+import cloudreports.models.DatacenterRegistry;
 import cloudreports.models.Migration;
 import cloudreports.simulation.Simulation;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+
+import org.cloudbus.cloudsim.Datacenter;
 import org.cloudbus.cloudsim.Log;
 import org.cloudbus.cloudsim.Vm;
 import org.cloudbus.cloudsim.VmAllocationPolicySimple;
 import org.cloudbus.cloudsim.core.CloudSim;
 import org.cloudbus.cloudsim.power.PowerHost;
 
+import com.google.common.base.Preconditions;
+
 /**
  * A virtual machine allocation policy based on a single utilization threshold.
  * 
  * @see         VmAllocationPolicy
- * @see         AllocationPolicy#SINGLE_THRESHOLD
  * @author      Thiago T. Sá
  * @since       1.0
  */
+@Extension(name = "Single Threshold")
 public class VmAllocationPolicySingleThreshold extends VmAllocationPolicySimple implements VmAllocationPolicyExtensible {
 
-    private double upperUtilizationThreshold;
+    private final double upperUtilizationThreshold;
     
     /** 
      * Initializes a new instance of this class with the given list of hosts
@@ -58,6 +64,17 @@ public class VmAllocationPolicySingleThreshold extends VmAllocationPolicySimple 
         super(list);
         this.upperUtilizationThreshold = utilizationThreshold;
     }
+    
+    /**
+     * Creates a new {@link VmAllocationPolicySingleThreshold} for the given hosts and {@link DatacenterRegistry} 
+     * 
+     * @param hosts the hosts to be allocated. It migth not be <code>null</code>
+     * @param datacenter {@link Datacenter}'s data. It might not be <code>null</code>
+     */
+    public VmAllocationPolicySingleThreshold(List<? extends PowerHost> hosts, DatacenterRegistry datacenter) 
+    {
+    	this(hosts, Preconditions.checkNotNull(datacenter).getUpperUtilizationThreshold());
+	}
 
     /** 
      * Optimizes the allocation of virtual machines.

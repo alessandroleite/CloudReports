@@ -19,19 +19,21 @@
 
 package cloudreports.extensions.brokers;
 
-import cloudreports.enums.BrokerPolicy;
 import java.util.List;
+
+import cloudreports.extensions.Extension;
 
 /**
  * A specific type of {@link Broker} that schedules virtual machines in a 
  * round-robin fashion.
  * 
  * @see         Broker
- * @see         BrokerPolicy#ROUND_ROBIN
  * @author      Thiago T. Sá
  * @since       1.0
  */
-public class RoundRobinDatacenterBroker extends Broker {
+@Extension(name = "Round Robin")
+public class RoundRobinDatacenterBroker extends Broker 
+{
 
     /** The current datacenter id used to schedule virtual machines. */
     int currentId;
@@ -42,7 +44,8 @@ public class RoundRobinDatacenterBroker extends Broker {
      * @param   name    the name of the broker.
      * @since           1.0
      */      
-    public RoundRobinDatacenterBroker(String name) throws Exception {
+    public RoundRobinDatacenterBroker(String name) throws Exception 
+    {
         super(name);
         this.currentId=0;
     }
@@ -67,7 +70,8 @@ public class RoundRobinDatacenterBroker extends Broker {
      * @since   1.0
      */      
     @Override
-    public List<Integer> getDatacenterIdList() {
+    public List<Integer> getDatacenterIdList() 
+    {
         return getDatacenterIdsList();
     }
 }
