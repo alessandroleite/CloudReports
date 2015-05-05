@@ -1,5 +1,6 @@
 package cloudreports.enums;
 
+import java.lang.reflect.Constructor;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -26,8 +27,13 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 
 import cloudreports.extensions.Extension;
+import cloudreports.extensions.InvalidExtensionException;
 import cloudreports.extensions.brokers.Broker;
 import cloudreports.extensions.vmallocationpolicies.VmAllocationPolicyExtensible;
+import cloudreports.models.DatacenterRegistry;
+
+
+import static java.lang.String.*;
 import static com.google.common.collect.Maps.*;
 import static com.google.common.collect.Sets.*;
 import static com.google.common.collect.Collections2.*;
@@ -40,53 +46,76 @@ import static cloudreports.utils.ReflectionHelper.*;
 public enum ExtensionTypes 
 {
 	/**
-	 * Bandwidth provisioner.
+	 * <p>Bandwidth provisioning policies
 	 * 
-	 * <strong>Base class</strong>: org.cloudbus.cloudsim.provisioners.BwProvisioner
-	 * <strong>Constructor signature:</strong> public ClassName(long);
+	 * <strong>Base class</strong>: {@link org.cloudbus.cloudsim.provisioners.BwProvisioner}
+	 * <strong>Constructor parameter types</strong>: {@link Long}
 	 */
-	BW_PROVISIONER(BwProvisioner.class),
+	BW_PROVISIONER(BwProvisioner.class, long.class),
 	
 	/**
+	 * <p>Cloudlets scheduling policies
 	 * 
+	 * <strong>Base type</strong>: {@link org.cloudbus.cloudsim.CloudletScheduler}
+	 * <strong>Constructor parameter types</strong>: {@link Double} and {@link Integer}
 	 */
-	CLOUDLET_SCHEDULER(CloudletScheduler.class),
+	CLOUDLET_SCHEDULER(CloudletScheduler.class, double.class, int.class),
 	
 	/**
-	 * 
+	 * Broker policies:
+	 * <strong>Base type</strong>: {@link cloudreports.extensions.brokers.Broker}
+	 * <strong>Constructor parameter types<strong>: {@link String}
 	 */
-	DATACENTER_BROKER(Broker.class),
+	DATACENTER_BROKER(Broker.class, String.class),
 	
 	
 	/**
+	 * <p>Processing elements provisioning policies
 	 * 
+	 * <strong>Base class</strong>: {@link org.cloudbus.cloudsim.provisioners.PeProvisioner}
+	 * <strong>Constructor parameter types</strong>: {@link Double}
 	 */
-	PE_PROVISIONER(PeProvisioner.class),
+	PE_PROVISIONER(PeProvisioner.class, double.class),
 
 	/**
+	 * <p>Power consumption models
 	 * 
+	 * <strong>Base type</strong>: {@link org.cloudbus.cloudsim.power.models.PowerModel}
+	 * <strong>Constructor parameter types</strong>: {@link Double} and {@link Double}
 	 */
-	POWER_MODEL(PowerModel.class),
+	POWER_MODEL(PowerModel.class, double.class, double.class),
 	
 	/**
+	 * <p>RAM provisioning policies
 	 * 
+	 * <strong>Base class</strong>: {@link org.cloudbus.cloudsim.provisioners.RamProvisioner}
+	 * <strong>Constructor parameter types</strong>: {@link Integer}
 	 */
-	RAM_PROVISIONER(RamProvisioner.class),
+	RAM_PROVISIONER(RamProvisioner.class, Integer.class),
 	
 	/**
+	 * <p> Resource utilization models
 	 * 
+	 * <strong>Base type</strong>: org.cloudbus.cloudsim.UtilizationModel
+	 * <strong>Constructor parameter types</strong>: none (default constructor)
 	 */
 	UTILIZATION_MODEL(UtilizationModel.class),
 
 	/**
+	 * <p>Virtual machines allocation policies
 	 * 
+	 * <strong>Base class</strong>: {@link cloudreports.extensions.vmallocationpolicies.VmAllocationPolicyExtensible}
+	 * <strong>Constructor parameter types</strong>: {@link java.util.List} and {@link DatacenterRegistry}
 	 */
-	VM_ALLOCATION_POLICY(VmAllocationPolicyExtensible.class), 
+	VM_ALLOCATION_POLICY(VmAllocationPolicyExtensible.class, List.class, DatacenterRegistry.class), 
 	
 	/**
+	 * <p> Virtual machines schedulers
 	 * 
+	 * <strong>Base type </strong>: {@link org.cloudbus.cloudsim.VmScheduler}
+	 * <strong>Constructor parameter types</strong>: {@link List}
 	 */
-	VM_SCHEDULER (VmScheduler.class);
+	VM_SCHEDULER (VmScheduler.class, List.class);
 
 	private final Class<?> type;
 
@@ -94,12 +123,19 @@ public enum ExtensionTypes
 	
 	private static final Logger LOG = LoggerFactory.getLogger(ExtensionTypes.class.getName());
 	
-	public static <T> Set<Class<? extends T>> getByTypeOf(final Class<T> superType) 
+	/**
+	 * Returns all the sub-types of a given {@code type}.
+	 *   
+	 * @param type the base type. It might not be <code>null</code> 
+	 * @return A non-null and unmodifiable {@link Set} with the sub-types.
+	 */
+	public static <T> Set<Class<? extends T>> getByTypeOf(final Class<T> type) 
 	{
-		checkNotNull(superType);
+		checkNotNull(type);
+		
 		final Set<Class<? extends T>> result = newHashSet();
 		
-		for (Class<?> clazz : transform(getExtensionDefOf(superType), EXTENSIONDEF_TO_CLASS_FUNCTION)) 
+		for (Class<?> clazz : transform(getExtensionDefOf(type), EXTENSIONDEF_TO_CLASS_FUNCTION)) 
 		{
 			result.add((Class<? extends T>) clazz);
 		}
@@ -142,23 +178,38 @@ public enum ExtensionTypes
 		return result;
 	}
 
-	private <T> ExtensionTypes(Class<T> type) 
+	/**
+	 * Creates a new extension type for the given {@code baseType}.
+	 * 
+	 * @param baseType represents the base type (i.e., root type) of an extension. It might not be <code>null</code> 
+	 * @param constructorParameterTypes the required 
+	 * @throws InvalidExtensionException if the types do not have the required constructor neither a default constructor
+	 * @throws IllegalStateException if there more than one extension type with the same base type.
+	 */
+	private <T> ExtensionTypes(final Class<T> baseType, Class<?> ... constructorParameterTypes) 
 	{
-		this.type = type;
+		this.type = baseType;
+		final Set<ExtensionDef> existing = extensions.put(checkNotNull(baseType), new HashSet<ExtensionDef>());
+		checkState(existing == null);
 
-		extensions.put(type, new HashSet<ExtensionDef>());
-
-		for (Class<?> clazz : getSubTypesOf(type)) 
+		for (Class<?> clazz : getSubTypesOf(baseType)) 
 		{
+			if (constructorParameterTypes != null && constructorParameterTypes.length > 0)
+			{
+				Constructor<?> constructor = new Mirror().on(clazz).reflect().constructor().withArgs(constructorParameterTypes);
+				
+				if (constructor == null && new Mirror().on(clazz).reflect().constructor().withoutArgs() == null)
+				{
+					throw new InvalidExtensionException(format("The class %s does not have a constructor with the expected arguments neither a default constructor. " + 
+				                                               "The required arguments are: %s", clazz.getName(), Arrays.toString(constructorParameterTypes)));
+				}
+			}
+			
 			final Extension annotation = clazz.getAnnotation(Extension.class);
-			ExtensionDef def = new ExtensionDef(annotation != null ? annotation.name() : clazz.getSimpleName(), clazz);
-			extensions.get(type).add(def);
+			final ExtensionDef def = new ExtensionDef(annotation != null ? annotation.name() : clazz.getSimpleName(), clazz);
+			
+			extensions.get(baseType).add(def);
 		}
-	}
-
-	protected <T> Class<T> getExtensionType() 
-	{
-		return (Class<T>) type;
 	}
 
 	public Set<Class<?>> getExtensionTypes() 
@@ -173,6 +224,10 @@ public enum ExtensionTypes
 		return result;
 	}
 	
+	/**
+	 * Returns the names of the extensions of a type.
+	 * @return a non-null array with the name of the available extensions.
+	 */
 	public String[] getNames()
 	{
 		List<String> names = newArrayList(transform(getExtensionsSet(), new Function<ExtensionDef, String>() 
@@ -186,7 +241,13 @@ public enum ExtensionTypes
 		
 		return names.toArray(new String[names.size()]);
 	}
-	
+
+	/**
+	 * Returns an extension which has the given {@code name}. 
+	 * 
+	 * @param name the extension name to find. There is not a direct relationship between an extension's name and its class. 
+	 * @return an {@link Optional} with the extension found or {@link Optional#absent()} if there isn't an extension with the given name.
+	 */
 	public <T> Optional<Class<T>> getExtensionByName(final String name) 
 	{
 		Collection<ExtensionDef> filter = filter(getExtensionsSet(), new Predicate<ExtensionDef>() 
@@ -216,7 +277,7 @@ public enum ExtensionTypes
 			}
 			catch(RuntimeException exception)
 			{
-				LOG.error("Error on creating the extension [{}] with arguments [{}]. Error message [{}]", name, Arrays.toString(args), exception.getMessage(), exception);
+				LOG.error("Error on creating the extension [{}] with arguments [{}]. Error message [{}]", name, Arrays.toString(args), exception.getMessage());
 				
 				try
 				{
@@ -224,7 +285,7 @@ public enum ExtensionTypes
 					
 					result = hasArguments ? Optional.fromNullable((T) handler.withoutArgs()) : Optional.<T> absent();
 					
-					LOG.info("Extension [{}] created throught the default constructor", name);
+					LOG.info("Extension [{}] created using the default constructor", name);
 				}
 				catch(RuntimeException exception2)
 				{
@@ -248,7 +309,7 @@ public enum ExtensionTypes
 
 		public ExtensionDef(String name, Class<?> clazz) 
 		{
-			this.name = name == null || name.trim().isEmpty() ? clazz.getSimpleName() : name;
+			this.name = isNullOrEmpty(name) ? clazz.getSimpleName() : name.trim();
 			this.clazz = clazz;
 		}
 
